@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logotype Generator - Miss America Brand Tool</title>
+  <style>
+    @font-face {
+      font-family: 'Konnect';
+      src: url('KonnectExtraBold.otf') format('opentype');
+      font-weight: 800;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Konnect';
+      src: url('KonnectBold.otf') format('opentype');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: #FFFFFF;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #888780;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .header-subtitle {
+      font-size: 13px;
+      color: #B4B2A9;
+    }
+
+    .section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #888780;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .section {
+      margin-bottom: 1.5rem;
+    }
+
+    /* Title Type Segmented Control */
+    .segmented-control {
+      display: flex;
+      border: 1px solid #E0DDD6;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .segmented-btn {
+      flex: 1;
+      padding: 10px 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: #888780;
+      background: white;
+      border: none;
+      cursor: pointer;
+      border-right: 1px solid #E0DDD6;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    .segmented-btn:last-child {
+      border-right: none;
+    }
+
+    .segmented-btn:hover:not(.selected) {
+      background: #F7F6F3;
+    }
+
+    .segmented-btn.selected {
+      background: #B49B57;
+      color: white;
+      font-weight: 600;
+    }
+
+    /* Location Input */
+    .location-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      font-size: 15px;
+      border: 1px solid #E0DDD6;
+      border-radius: 10px;
+      background: white;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .location-input::placeholder {
+      color: #C8C5BC;
+    }
+
+    .location-input:focus {
+      border-color: #B49B57;
+    }
+
+    /* Color Selector */
+    .color-cards {
+      display: flex;
+      gap: 12px;
+    }
+
+    .color-card {
+      flex: 1;
+      padding: 1rem;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .color-card.selected {
+      border-color: #B49B57;
+      background: #FFFDF7;
+    }
+
+    .color-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      margin: 0 auto 8px;
+      transition: box-shadow 0.15s;
+    }
+
+    .color-card.selected .color-circle {
+      box-shadow: 0 0 0 3px #FFFDF7, 0 0 0 5px #B49B57;
+    }
+
+    .color-circle.white {
+      border: 1px solid #E0DDD6;
+    }
+
+    .color-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: #888780;
+      margin-bottom: 2px;
+    }
+
+    .color-hex {
+      font-size: 11px;
+      font-family: monospace;
+      color: #B4B2A9;
+    }
+
+    /* Preview */
+    .preview-container {
+      border-radius: 14px;
+      border: 1px solid #E0DDD6;
+      overflow: hidden;
+    }
+
+    .preview-area {
+      min-height: 320px;
+      padding: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F0EFEB;
+      transition: background 0.15s;
+    }
+
+    .preview-area.dark-bg {
+      background: #3C3C3C;
+    }
+
+    .empty-state {
+      font-size: 14px;
+      font-style: italic;
+      color: #B4B2A9;
+    }
+
+    .preview-area.dark-bg .empty-state {
+      color: #757575;
+    }
+
+    .logotype-container {
+      font-family: Konnect, "Arial Black", Impact, sans-serif;
+      font-size: 64px;
+      letter-spacing: -0.035em;
+      line-height: 0.85;
+      display: none;
+    }
+
+    .logotype-container.visible {
+      display: block;
+    }
+
+    .logotype-container span {
+      display: block;
+    }
+
+    .preview-footer {
+      padding: 12px 20px;
+      background: white;
+      border-top: 1px solid #E0DDD6;
+      font-size: 12px;
+      color: #B4B2A9;
+    }
+
+    /* Download Button */
+    .download-btn {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border: none;
+      border-radius: 10px;
+      background: #B49B57;
+      color: white;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    .download-btn:hover:not(:disabled) {
+      background: #A68D4E;
+    }
+
+    .download-btn:disabled {
+      background: #D8D5CC;
+      cursor: not-allowed;
+    }
+
+    .download-note {
+      font-size: 11px;
+      color: #B4B2A9;
+      text-align: center;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-title">Logotype Generator</div>
+      <div class="header-subtitle">Miss America Brand Tool</div>
+    </div>
+
+    <!-- Title Type -->
+    <div class="section">
+      <div class="section-label">Title Type</div>
+      <div class="segmented-control">
+        <button class="segmented-btn selected" data-type="stateMiss">State Miss</button>
+        <button class="segmented-btn" data-type="stateTeen">State Teen</button>
+        <button class="segmented-btn" data-type="localMiss">Local Miss</button>
+        <button class="segmented-btn" data-type="localTeen">Local Teen</button>
+      </div>
+    </div>
+
+    <!-- Location Name -->
+    <div class="section">
+      <div class="section-label">Location Name</div>
+      <input type="text" class="location-input" id="locationInput" placeholder="e.g. Montana, Anchorage, Greater Portland">
+    </div>
+
+    <!-- Brand Color -->
+    <div class="section">
+      <div class="section-label">Brand Color</div>
+      <div class="color-cards">
+        <div class="color-card selected" data-color="#3C3C3C">
+          <div class="color-circle" style="background: #3C3C3C;"></div>
+          <div class="color-name">Dark Grey</div>
+          <div class="color-hex">#3C3C3C</div>
+        </div>
+        <div class="color-card" data-color="#FFFFFF">
+          <div class="color-circle white" style="background: #FFFFFF;"></div>
+          <div class="color-name">White</div>
+          <div class="color-hex">#FFFFFF</div>
+        </div>
+        <div class="color-card" data-color="#B49B57">
+          <div class="color-circle" style="background: #B49B57;"></div>
+          <div class="color-name">Gold</div>
+          <div class="color-hex">#B49B57</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="section">
+      <div class="section-label">Preview</div>
+      <div class="preview-container">
+        <div class="preview-area" id="previewArea">
+          <div class="empty-state" id="emptyState">Type a location name above</div>
+          <div class="logotype-container" id="logoContainer">
+            <span id="line1">Miss</span>
+            <span id="line2">Location</span>
+            <span id="line3">Teen</span>
+          </div>
+        </div>
+        <div class="preview-footer" id="previewFooter">
+          Konnect Extra Bold | #3C3C3C
+        </div>
+      </div>
+    </div>
+
+    <!-- Download -->
+    <button class="download-btn" id="downloadBtn" disabled>Download PNG</button>
+    <div class="download-note">Transparent background, 3x resolution</div>
+  </div>
+
+  <script>
+    // Elements
+    var locationInput = document.getElementById('locationInput');
+    var previewArea = document.getElementById('previewArea');
+    var emptyState = document.getElementById('emptyState');
+    var logoContainer = document.getElementById('logoContainer');
+    var line1 = document.getElementById('line1');
+    var line2 = document.getElementById('line2');
+    var line3 = document.getElementById('line3');
+    var previewFooter = document.getElementById('previewFooter');
+    var downloadBtn = document.getElementById('downloadBtn');
+    var segmentedBtns = document.querySelectorAll('.segmented-btn');
+    var colorCards = document.querySelectorAll('.color-card');
+
+    // State
+    var selectedType = 'stateMiss';
+    var selectedColor = '#3C3C3C';
+
+    // Capitalize function
+    function capitalize(str) {
+      return str.split(' ').map(function(word) {
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      }).join(' ');
+    }
+
+    // Get type info
+    function getTypeInfo() {
+      var isState = (selectedType === 'stateMiss' || selectedType === 'stateTeen');
+      var isTeen = (selectedType === 'stateTeen' || selectedType === 'localTeen');
+      var weight = isState ? 800 : 700;
+      var fontName = isState ? 'Konnect Extra Bold' : 'Konnect Bold';
+      return { isState: isState, isTeen: isTeen, weight: weight, fontName: fontName };
+    }
+
+    // Update preview
+    function updatePreview() {
+      var loc = locationInput.value.trim();
+      var info = getTypeInfo();
+      var formatted = capitalize(loc);
+
+      // Update logo styles
+      logoContainer.style.fontWeight = info.weight;
+      logoContainer.style.color = selectedColor;
+
+      // Update preview background
+      if (selectedColor === '#FFFFFF') {
+        previewArea.classList.add('dark-bg');
+      } else {
+        previewArea.classList.remove('dark-bg');
+      }
+
+      // Update footer
+      previewFooter.textContent = info.fontName + ' | ' + selectedColor;
+
+      // Show/hide elements
+      if (!loc) {
+        emptyState.style.display = 'block';
+        logoContainer.classList.remove('visible');
+        downloadBtn.disabled = true;
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      logoContainer.classList.add('visible');
+      downloadBtn.disabled = false;
+
+      // Set text content
+      line1.textContent = 'Miss';
+      line2.textContent = info.isTeen ? formatted + '\u2019s' : formatted;
+
+      if (info.isTeen) {
+        line3.textContent = 'Teen';
+        line3.style.display = 'block';
+      } else {
+        line3.style.display = 'none';
+      }
+
+      // Calculate Miss indent based on first letter width
+      var temp = document.createElement('span');
+      temp.style.cssText = 'position:absolute;visibility:hidden;font-family:Konnect,"Arial Black",Impact,sans-serif;font-size:64px;font-weight:' + info.weight + ';letter-spacing:-0.035em;white-space:nowrap;';
+      temp.textContent = line2.textContent.charAt(0);
+      document.body.appendChild(temp);
+      var firstLetterWidth = temp.getBoundingClientRect().width;
+      document.body.removeChild(temp);
+
+      line1.style.marginLeft = firstLetterWidth + 'px';
+      line2.style.marginLeft = '0';
+
+      // Calculate Teen centering
+      if (info.isTeen) {
+        requestAnimationFrame(function() {
+          var line2Width = line2.getBoundingClientRect().width;
+          var line3Width = line3.getBoundingClientRect().width;
+          var teenMargin = (line2Width - line3Width) / 2;
+          line3.style.marginLeft = teenMargin + 'px';
+        });
+      }
+    }
+
+    // Download PNG
+    function downloadPNG() {
+      var loc = locationInput.value.trim();
+      if (!loc) return;
+
+      var info = getTypeInfo();
+      var formatted = capitalize(loc);
+
+      var scale = 3;
+      var fontSize = 130;
+      var lineHeight = 0.85;
+      var padding = 40;
+      var fontStr = info.weight + ' ' + (fontSize * scale) + 'px Konnect, "Arial Black", Impact, sans-serif';
+
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+
+      // Set font and letter spacing BEFORE measuring
+      ctx.font = fontStr;
+      try { ctx.letterSpacing = (-0.035 * fontSize * scale) + 'px'; } catch(e) {}
+
+      // Determine lines
+      var line1Text = 'Miss';
+      var line2Text = info.isTeen ? formatted + '\u2019s' : formatted;
+      var line3Text = info.isTeen ? 'Teen' : null;
+
+      // Measure widths
+      var line1Width = ctx.measureText(line1Text).width;
+      var line2Width = ctx.measureText(line2Text).width;
+      var line3Width = line3Text ? ctx.measureText(line3Text).width : 0;
+
+      // Measure first letter of location for Miss indent
+      var firstLetter = line2Text.charAt(0);
+      var firstLetterWidth = ctx.measureText(firstLetter).width;
+
+      // Calculate X positions
+      var padScaled = padding * scale;
+      var line2X = padScaled; // location is the anchor, far left
+      var line1X = padScaled + firstLetterWidth; // Miss is indented by one letter
+      var line3X = 0;
+      if (line3Text) {
+        line3X = padScaled + (line2Width / 2) - (line3Width / 2); // Teen centered under location
+      }
+
+      // Calculate canvas dimensions
+      var line1Right = line1X + line1Width;
+      var line2Right = line2X + line2Width;
+      var line3Right = line3Text ? (line3X + line3Width) : 0;
+      var maxRight = Math.max(line1Right, line2Right, line3Right);
+      var numLines = info.isTeen ? 3 : 2;
+      var totalHeight = fontSize * scale * lineHeight * numLines + fontSize * scale * 0.15;
+
+      canvas.width = Math.ceil(maxRight + padScaled);
+      canvas.height = Math.ceil(totalHeight + padScaled * 2);
+
+      // Clear canvas - TRANSPARENT background
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Set drawing properties
+      ctx.fillStyle = selectedColor;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.font = fontStr;
+      try { ctx.letterSpacing = (-0.035 * fontSize * scale) + 'px'; } catch(e) {}
+
+      // Draw lines
+      var y = padScaled;
+      ctx.fillText(line1Text, line1X, y); // Miss - indented
+      y += fontSize * scale * lineHeight;
+      ctx.fillText(line2Text, line2X, y); // Location - far left
+      if (line3Text) {
+        y += fontSize * scale * lineHeight;
+        ctx.fillText(line3Text, line3X, y); // Teen - centered under location
+      }
+
+      // Download
+      var a = document.createElement('a');
+      var colorName = selectedColor === '#3C3C3C' ? 'Dark Grey' : (selectedColor === '#FFFFFF' ? 'White' : 'Gold');
+      a.download = 'Miss ' + formatted + (info.isTeen ? '\u2019s Teen' : '') + ' - ' + colorName + '.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    }
+
+    // Event listeners
+    segmentedBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        segmentedBtns.forEach(function(b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        selectedType = btn.dataset.type;
+        updatePreview();
+      });
+    });
+
+    colorCards.forEach(function(card) {
+      card.addEventListener('click', function() {
+        colorCards.forEach(function(c) { c.classList.remove('selected'); });
+        card.classList.add('selected');
+        selectedColor = card.dataset.color;
+        updatePreview();
+      });
+    });
+
+    locationInput.addEventListener('input', updatePreview);
+    downloadBtn.addEventListener('click', downloadPNG);
+
+    // Initial state
+    updatePreview();
+  </script>
+</body>
+</html>
