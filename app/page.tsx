@@ -35,6 +35,25 @@ export default function LogotypeGenerator() {
   // Per-line horizontal placement within the widest line's box, indexed the same
   // as the rendered lines. 0 = flush-left under the anchor, 0.5 = centered, 1 = flush-right.
   const [lineBiases, setLineBiases] = useState<number[]>([])
+  // Browsers only download a font weight once it is used, so measuring before the
+  // Konnect files arrive returns fallback-font widths. Load both weights up front
+  // and re-run every measurement once they are available.
+  const [fontsLoaded, setFontsLoaded] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([
+      document.fonts.load(`700 ${PREVIEW_FONT_SIZE}px Konnect`),
+      document.fonts.load(`800 ${PREVIEW_FONT_SIZE}px Konnect`),
+    ])
+      .catch(() => undefined)
+      .then(() => {
+        if (!cancelled) setFontsLoaded(true)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const getBias = (i: number) => (lineBiases[i] ?? 0.5)
   const setBias = (i: number, val: number) =>
@@ -145,7 +164,7 @@ export default function LogotypeGenerator() {
     if (cur) out.push(cur)
     setLocationLines(out)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, fontWeight, formattedLocation])
+  }, [location, fontWeight, formattedLocation, fontsLoaded])
 
   // Measure every rendered line so each can be positioned within the widest line's
   // box. The widest line anchors flush-left; the rest are placed by their own bias.
@@ -156,13 +175,14 @@ export default function LogotypeGenerator() {
     }
     setLineWidths(titleLines.map((line) => measureSpan(line, fontWeight)))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, isTeen, fontWeight, titleLines.join("|")])
+  }, [location, isTeen, fontWeight, titleLines.join("|"), fontsLoaded])
 
-  // Download PNG — always a fixed 1080×1080 transparent square with the logotype
-  // drawn at a constant font size and centered both horizontally and vertically.
+  // Download PNG: always a fixed 1080×1080 square with the logotype drawn at a
+  // constant font size and centered both horizontally and vertically.
   const downloadPNG = async () => {
     if (!location.trim()) return
 
+    await document.fonts.load(`${fontWeight} 150px Konnect`).catch(() => undefined)
     await document.fonts.ready
 
     const OUTPUT = 1080 // final square dimension in px
