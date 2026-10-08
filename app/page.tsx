@@ -337,9 +337,11 @@ export default function LogotypeGenerator() {
           </div>
           <div style={{ display: "flex", gap: 12 }}>
             {(["darkGrey", "white", "gold"] as ColorKey[]).map((key) => (
-              <div
+              <button
+                type="button"
                 key={key}
                 onClick={() => setSelectedColor(key)}
+                aria-pressed={selectedColor === key}
                 style={{
                   flex: 1,
                   padding: "1rem",
@@ -365,7 +367,7 @@ export default function LogotypeGenerator() {
                   {key === "darkGrey" ? "Dark Grey" : key === "white" ? "White" : "Gold"}
                 </div>
                 <div style={{ fontSize: 11, fontFamily: "monospace", color: "#B4B2A9" }}>{COLORS[key]}</div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
