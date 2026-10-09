@@ -25,3 +25,8 @@ body {
   background: #f5f5f5;
   min-height: 100vh;
 }
+
+:focus-visible {
+  outline: 3px solid #B49B57;
+  outline-offset: 3px;
+}
